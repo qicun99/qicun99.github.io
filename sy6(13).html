@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>ArcGIS JavaScript API - WebGIS应用示例</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.26/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.26/"></script>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #header {
+        height: 60px;
+        background-color: #f7f7f7;
+        text-align: center;
+        line-height: 60px;
+        font-size: 24px;
+      }
+
+      #basemapGallery {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        z-index: 999;
+        background-color: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      }
+
+      #legend {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 999;
+        background-color: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      }
+
+      #search {
+        position: absolute;
+        top: 70px;
+        right: 10px;
+        z-index: 999;
+        background-color: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      }
+
+      #layerList {
+        position: absolute;
+        top: 130px;
+        right: 10px;
+        z-index: 999;
+        background-color: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      }
+
+      #tools {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 999;
+        background-color: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      }
+
+      .esri-widget--button {
+        margin-bottom: 5px;
+      }
+    </style>
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/BasemapGallery",
+        "esri/widgets/Legend",
+        "esri/widgets/Search",
+        "esri/widgets/LayerList",
+        "esri/widgets/DistanceMeasurement2D",
+        "esri/widgets/AreaMeasurement2D",
+        "esri/layers/FeatureLayer"
+      ], function (Map, MapView, BasemapGallery, Legend, Search, LayerList, DistanceMeasurement2D, AreaMeasurement2D, FeatureLayer) {
+        const map = new Map({
+          basemap: "streets-navigation-vector"
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [120.1551, 30.2741],
+          zoom: 12
+        });
+
+        const basemapGallery = new BasemapGallery({
+          view: view,
+          source: {
+            portal: {
+              url: "https://www.arcgis.com",
+              useVectorBasemaps: true // 使用矢量底图
+            }
+          }
+        });
+        view.ui.add(basemapGallery, { position: "top-left" });
+
+        const legend = new Legend({
+          view: view
+        });
+        view.ui.add(legend, { position: "top-right" });
+
+        const search = new Search({
+          view: view
+        });
+        view.ui.add(search, { position: "top-right" });
+
+        const layerList = new LayerList({
+          view: view
+        });
+        view.ui.add(layerList, { position: "top-right" });
+
+        const distanceMeasurement = new DistanceMeasurement2D({
+          view: view
+        });
+        const areaMeasurement = new AreaMeasurement2D({
+          view: view
+        });
+
+        const tools = document.getElementById("tools");
+        const distanceButton = document.createElement("button");
+        distanceButton.innerHTML = "测距";
+        distanceButton.className = "esri-widget--button";
+        distanceButton.addEventListener("click", function () {
+          view.ui.add(distanceMeasurement, "top-right");
+        });
+        tools.appendChild(distanceButton);
+
+        const areaButton = document.createElement("button");
+        areaButton.innerHTML = "测面积";
+        areaButton.className = "esri-widget--button";
+        areaButton.addEventListener("click", function () {
+          view.ui.add(areaMeasurement, "top-right");
+        });
+        tools.appendChild(areaButton);
+
+        const featureLayer = new FeatureLayer({
+          url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads_Styled/FeatureServer/0",
+          outFields: ["*"],
+          popupTemplate: {
+            title: "{TRL_NAME}",
+            content: [{
+              type: "fields",
+              fieldInfos: [{
+                fieldName: "PARK_NAME",
+                label: "Park Name"
+              }, {
+                fieldName: "TRL_NAME",
+                label: "Trail Name"
+              }, {
+                fieldName: "ELEV_FT",
+                label: "Elevation"
+              }, {
+                fieldName: "DIFFICULTY",
+                label: "Difficulty"
+              }]
+            }]
+          }
+        });
+        map.add(featureLayer);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="header">WebGIS应用示例</div>
+    <div id="viewDiv"></div>
+    <div id="basemapGallery"></div>
+    <div id="legend"></div>
+    <div id="search"></div>
+    <div id="layerList"></div>
+    <div id="tools"></div>
+  </body>
+</html>
